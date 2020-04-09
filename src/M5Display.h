@@ -20,8 +20,8 @@
       void sleep();
       void wakeup();
       void setBrightness(uint8_t brightness);
-      void clearDisplay(uint32_t color=ILI9341_BLACK) { fillScreen(color); }
-      void clear(uint32_t color=ILI9341_BLACK) { fillScreen(color); }
+      void clearDisplay(uint32_t color=TFT_BLACK) { fillScreen(color); }
+      void clear(uint32_t color=TFT_BLACK) { fillScreen(color); }
       void display() {}
 
       inline void startWrite(void){

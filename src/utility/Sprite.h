@@ -106,6 +106,9 @@ class TFT_eSprite : public TFT_eSPI {
   void     getRotatedBounds(float sina, float cosa, int16_t w, int16_t h, int16_t xp, int16_t yp,
                                 int16_t *min_x, int16_t *min_y, int16_t *max_x, int16_t *max_y);
 
+  void     readRectRGB( int32_t x0, int32_t y0, int32_t w, int32_t h, uint8_t *data);
+  void     readRect( int32_t x, int32_t y, int32_t w, int32_t h, uint16_t *dest );
+
            // Read the colour of a pixel at x,y and return value in 565 format
   uint16_t readPixel(int32_t x0, int32_t y0);
            // Read the colour of a pixel at x,y and return value in 4 bits format
@@ -114,7 +117,6 @@ class TFT_eSprite : public TFT_eSPI {
            // Write an image (colour bitmap) to the sprite
   void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint16_t *data, int32_t transparent=-1);
   void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, const uint16_t *data, int32_t transparent=-1);
-  //void     pushImage(int32_t x0, int32_t y0, int32_t w, int32_t h, uint16_t *data, uint16_t transparent);
 
   bool     setupImgDecoder( int32_t x=0, int32_t y=0, uint16_t maxWidth=0, uint16_t maxHeight=0 );
 

@@ -25,6 +25,7 @@ void SPEAKER::end() {
 void SPEAKER::tone(uint16_t frequency) {
   if(!_begun) begin();
   ledcWriteTone(TONE_PIN_CHANNEL, frequency);
+  ledcWrite(TONE_PIN_CHANNEL, 0x400 >> _volume); // also apply volume, see http://nuneno.cocolog-nifty.com/blog/2020/01/post-b9cd2c.html
 }
 
 void SPEAKER::tone(uint16_t frequency, uint32_t duration) {

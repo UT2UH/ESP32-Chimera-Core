@@ -916,6 +916,95 @@ uint16_t TFT_eSprite::readPixel(int32_t x, int32_t y)
 }
 
 
+
+
+
+void  TFT_eSprite::readRectRGB(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t *data) {
+
+  if ((x >= _iwidth) || (y >= _iheight) || (w == 0) || (h == 0) || (x < 0) || (y < 0) || !_created) return;
+  if ((x + w < 0) || (y + h < 0) || (x+w > _iwidth) || (y+h>_iheight)) return;
+
+  uint8_t *beginning = data; // reset pointer if not already done
+  uint32_t imgindex = 0;
+  uint16_t pixel565;
+  uint8_t red, blue, green;
+
+
+  for( uint16_t j=y; j<y+h; j++ ) {
+    for( uint16_t i=x; i<x+w; i++ ) {
+      //Serial.printf("%04x ", i, j, sourceBuffer[i+j*w]);
+      switch( _bpp ) {
+        case 16: pixel565 = _img[i + j * _iwidth]; break;
+        case 8:  pixel565 = _img8[i + j * _iwidth]; break;
+        case 4:  pixel565 = ((i & 0x01) == 0) ? _colorMap[((_img4[((i+j*_iwidth)>>1)] & 0xF0) >> 4) & 0x0F ] : _colorMap[_img4[((i-1+j*_iwidth)>>1)] & 0x0F]; break;
+        default: pixel565 = (_img8[(i + j * _bitwidth)>>3] << (i & 0x7)) & 0x80; break;
+      }
+      red   = (pixel565 & 0xF800) >> 8; red   |= red   >> 5;
+      green = (pixel565 & 0x07E0) >> 3; green |= green >> 6;
+      blue  = (pixel565 & 0x001F) << 3; blue  |= blue  >> 5;
+      data[imgindex++] = red;
+      data[imgindex++] = green;
+      data[imgindex++] = blue;
+      //*data++ = red;
+      //*data++ = green;
+      //*data++ = blue;
+      //imgindex++;
+    }
+  }
+  data = beginning;
+
+  log_e("[%d] readRectRGB read %d colors ( %d pixels)", ESP.getFreeHeap(), imgindex, imgindex/3);
+
+/*
+  uint32_t len = w * h;
+  uint8_t* buf565 = data + len;
+
+  log_e( "readRectRGB buff len : %d", len );
+
+  readRect(x, y, w, h, (uint16_t*)buf565);
+
+  while (len--) {
+    uint16_t pixel565 = (*buf565)<<8 | (*buf565+1);
+    buf565++;
+    buf565++;
+    uint8_t red   = (pixel565 & 0xF800) >> 8; red   |= red   >> 5;
+    uint8_t green = (pixel565 & 0x07E0) >> 3; green |= green >> 6;
+    uint8_t blue  = (pixel565 & 0x001F) << 3; blue  |= blue  >> 5;
+    *data++ = red;
+    *data++ = green;
+    *data++ = blue;
+  }*/
+}
+
+void TFT_eSprite::readRect( int32_t x, int32_t y, int32_t w, int32_t h, uint16_t *dest ) {
+
+  if ((x >= _iwidth) || (y >= _iheight) || (w == 0) || (h == 0) || (x < 0) || (y < 0) || !_created) return;
+  if ((x + w < 0) || (y + h < 0) || (x + w > _iwidth) || (y + h > _iheight)) return;
+
+  //log_v("readRect( x=%d, y=%d, width=%d, height=%d\n", x, y, w, h);
+
+  uint32_t imgindex = 0;
+
+  for( uint16_t j=y; j<y+h; j++ ) {
+    for( uint16_t i=x; i<x+w; i++ ) {
+      //Serial.printf("%04x ", i, j, sourceBuffer[i+j*w]);
+      switch( _bpp ) {
+        case 16: dest[imgindex] = _img[i + j * _iwidth]; break;
+        case 8:  dest[imgindex] = _img8[i + j * _iwidth]; break;
+        case 4:  dest[imgindex] = ((i & 0x01) == 0) ? _colorMap[((_img4[((i+j*_iwidth)>>1)] & 0xF0) >> 4) & 0x0F ] : _colorMap[_img4[((i-1+j*_iwidth)>>1)] & 0x0F]; break;
+        default: dest[imgindex] = (_img8[(i + j * _bitwidth)>>3] << (i & 0x7)) & 0x80; break;
+      }
+      imgindex++;
+    }
+  }
+
+  log_e("[%d] readRect(x=%d, y=%d, width=%d, height=%d) read %d pixels", ESP.getFreeHeap(), x, y, w, h, imgindex);
+
+}
+
+
+
+
 /***************************************************************************************
 ** Function name:           pushImage
 ** Description:             push 565 colour image into a defined area of a sprite
